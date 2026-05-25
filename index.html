@@ -350,6 +350,12 @@
       margin-top: 20px;
       -webkit-overflow-scrolling: touch;
       border-radius: 16px;
+      -ms-overflow-style: -ms-autohiding-scrollbar;
+    }
+    .table-wrap table {
+      width: 100%;
+      table-layout: auto;
+      border-collapse: collapse;
     }
     
     table { 
@@ -440,6 +446,43 @@
       object-fit: cover;
       animation: float 12s ease-in-out infinite;
     }
+
+    /* Compare slider (without -> with) */
+    .compare-section { padding-top: 8px; }
+    .compare-card {
+      display: flex;
+      gap: 18px;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      max-width: 880px;
+      margin: 6px 0 0 0;
+    }
+    .compare-img {
+      position: relative;
+      width: 100%;
+      max-width: 520px;
+      border-radius: 20px;
+      overflow: hidden;
+      border: 1px solid rgba(12,123,255,0.08);
+      box-shadow: 0 14px 30px rgba(20,50,100,0.06);
+      background: #fff;
+      aspect-ratio: 16/9;
+      min-height: 160px;
+    }
+    .compare-img img { 
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      opacity: 0;
+      transition: opacity 600ms ease;
+      display: block;
+    }
+    .compare-img img.active { opacity: 1; position: relative; }
+    /* labels removed — keep markup minimal */
+
     
     .visual-tag {
       position: absolute;
@@ -534,6 +577,15 @@
       word-wrap: break-word;
       overflow-wrap: break-word;
     }
+    .footer-note-inline {
+      margin-top: 12px;
+      color: #5d7c9f;
+      font-size: 0.82rem;
+      line-height: 1.6;
+      word-wrap: break-word;
+      overflow-wrap: break-word;
+      max-width: 520px;
+    }
     
     .whatsapp-link {
       display: inline-flex;
@@ -582,6 +634,7 @@
       .hero { grid-template-columns: 1.1fr 0.9fr; gap: 32px; }
       .hero-grid { grid-template-columns: 1fr 1fr; gap: 20px; }
       .visual-row { grid-template-columns: 1fr 420px; }
+      .compare-card { max-width: 760px; }
     }
     
     @media (max-width: 480px) {
@@ -595,10 +648,43 @@
       .visual-tag { top: 12px; left: 12px; }
       table { font-size: 0.8rem; }
       th, td { padding: 10px 8px; }
+      .table-wrap table { font-size: 0.9rem; }
+      .cta { padding: 16px; grid-template-columns: 1fr; }
+      .cta .footer-note { font-size: 0.82rem; margin-top: 8px; }
     }
   </style>
 </head>
 <body>
+  <!-- Top swipe gallery (inserted) -->
+  <div class="top-swipe-wrap">
+    <style>
+      .ts-gallery{position:relative;width:100%;height:320px;max-height:40vh;background:linear-gradient(180deg,rgba(255,255,255,0.02),rgba(0,0,0,0.02));overflow:hidden;border-bottom:1px solid rgba(20,40,80,0.04)}
+      .ts-track{display:flex;height:100%;transition:transform .32s ease;touch-action:pan-y}
+      .ts-slide{min-width:100%;height:100%;display:flex;align-items:center;justify-content:center;overflow:hidden;background:#f6f8fb}
+      .ts-slide img{width:100%;height:100%;object-fit:cover;display:block}
+      .ts-controls{position:absolute;top:50%;left:12px;right:12px;display:flex;justify-content:space-between;transform:translateY(-50%);pointer-events:none}
+      .ts-btn{pointer-events:auto;background:rgba(255,255,255,0.9);border:1px solid rgba(20,40,80,0.06);height:44px;width:44px;border-radius:999px;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 6px 18px rgba(10,30,80,0.06)}
+      .ts-dots{position:absolute;left:50%;bottom:12px;transform:translateX(-50%);display:flex;gap:8px}
+      .ts-dot{width:10px;height:10px;border-radius:50%;background:rgba(255,255,255,0.9);opacity:.6;border:1px solid rgba(20,40,80,0.06);cursor:pointer}
+      .ts-dot.active{background:linear-gradient(90deg,var(--accent,#20c678),var(--primary,#0c7bff));opacity:1}
+      @media(min-width:900px){.ts-gallery{height:420px}}
+    </style>
+
+    <div class="ts-gallery" aria-label="Product images gallery">
+      <div class="ts-track" id="tsTrack">
+        <div class="ts-slide"><img alt="p1" src="https://i.imgur.com/ho6rfQt.jpg"></div>
+        <div class="ts-slide"><img alt="p2" src="https://i.imgur.com/eCrRohn.jpg"></div>
+        <div class="ts-slide"><img alt="p3" src="https://i.imgur.com/kCRjHVo.jpg"></div>
+        <div class="ts-slide"><img alt="p4" src="https://i.imgur.com/r5ypQDA.jpg"></div>
+        <div class="ts-slide"><img alt="p5" src="https://i.imgur.com/8LhoETz.jpg"></div>
+      </div>
+      <div class="ts-controls">
+        <button class="ts-btn" id="tsPrev" aria-label="Previous">‹</button>
+        <button class="ts-btn" id="tsNext" aria-label="Next">›</button>
+      </div>
+      <div class="ts-dots" id="tsDots" role="tablist"></div>
+    </div>
+  </div>
   <div class="page">
     <!-- wp:group -->
     <div class="panel wp-block-group">
@@ -627,18 +713,23 @@
           </div>
         </div>
       </div>
-      <div class="summary wp-block-group">
-        <p><strong>"Stay Fresh. Stay Confident. Choose Aquax Deo Roll-On."</strong></p>
-        <p><strong>Meet Lebanon's #1 recommended anti-sweat cream.</strong></p>
-        <ul>
-          <li>Long-lasting confidence</li>
-          <li>Dermatologically tested</li>
-          <li>Safe for sensitive skin</li>
-        </ul>
-      </div>
     </div>
-    <!-- /wp:group -->
+      <!-- Compare: without -> with -->
+      <section class="section wp-block-group">
+        <div class="compare-section">
+          <h2>See the difference</h2>
+          <div class="compare-card">
+            <div class="compare-img" id="compareImg">
+              <img id="imgA" src="https://imgcdn.dev/i/YdmF2K" alt="Without Aquax Deo" loading="lazy" decoding="async" onerror="this.onerror=null;this.src='https://via.placeholder.com/800x450?text=Image+unavailable';">
+              <img id="imgB" src="https://i.imgur.com/7iCBUOn.jpg" alt="With Aquax Deo" loading="lazy" decoding="async" onerror="this.onerror=null;this.src='https://via.placeholder.com/800x450?text=Image+unavailable';">
+            </div>
+          </div>
+        </div>
+      </section>
+      <!-- /Compare -->
 
+      <!-- wp:group -->
+      <section class="section wp-block-group">
     <!-- wp:group -->
     <section class="section wp-block-group">
       <h2>What Aquax Deo helps treat</h2>
@@ -652,21 +743,7 @@
     </section>
     <!-- /wp:group -->
 
-    <!-- wp:group -->
-    <section class="section wp-block-group">
-      <div class="visual-row">
-        <div class="visual-copy">
-          <h3>Results that feel as real as the product</h3>
-          <p>See the product in a polished lifestyle layout that matches the attached visuals and reflects the stronger, lighter experience you expect.</p>
-          <p>From morning confidence to evening comfort, Aquax Deo gives you premium sweat control without compromise.</p>
-        </div>
-        <div class="visual-card wp-block-image">
-          <div class="visual-tag">Clinically inspired</div>
-          <img src="https://psd-drugstore.com/wp-content/uploads/2026/05/ChatGPT-Image-May-22-2026-07_43_04-PM-3-1024x682.png" alt="Aquax Deo lifestyle visual">
-        </div>
-      </div>
-    </section>
-    <!-- /wp:group -->
+    
 
     <!-- wp:group -->
     <section class="section wp-block-group">
@@ -716,9 +793,63 @@
           </a>
         </div>
       </div>
-      <p class="footer-note">Safe for ages 12 and above. Contains moisturizer to help prevent irritation. Avoid use during pregnancy unless advised by a healthcare professional.</p>
     </section>
     <!-- /wp:group -->
+    <div class="footer-note-inline">Safe for ages 12 and above. Contains moisturizer to help prevent irritation. Avoid use during pregnancy unless advised by a healthcare professional.</div>
   </div>
+</div>
+  <script>
+    (function(){
+      const track = document.getElementById('tsTrack');
+      const slides = track.querySelectorAll('.ts-slide');
+      const prev = document.getElementById('tsPrev');
+      const next = document.getElementById('tsNext');
+      const dotsWrap = document.getElementById('tsDots');
+      let idx = 0, startX=0, deltaX=0, dragging=false;
+
+      function update(){
+        track.style.transform = `translateX(${-idx * 100}%)`;
+        Array.from(dotsWrap.children).forEach((d,i)=> d.classList.toggle('active', i===idx));
+      }
+
+      // create dots
+      slides.forEach((_,i)=>{
+        const b = document.createElement('button'); b.className='ts-dot'; b.setAttribute('aria-label','Go to slide '+(i+1)); b.addEventListener('click',()=>{idx=i;update()}); dotsWrap.appendChild(b);
+      });
+      update();
+
+      prev.addEventListener('click',()=>{ idx = Math.max(0, idx-1); update(); });
+      next.addEventListener('click',()=>{ idx = Math.min(slides.length-1, idx+1); update(); });
+
+      // touch / mouse drag
+      track.addEventListener('pointerdown', (e)=>{ dragging=true; startX = e.clientX; track.style.transition='none'; track.setPointerCapture && track.setPointerCapture(e.pointerId); });
+      track.addEventListener('pointermove', (e)=>{ if(!dragging) return; deltaX = e.clientX - startX; track.style.transform = `translateX(${ -idx*100 + (deltaX / track.clientWidth) * 100 }%)`; });
+      track.addEventListener('pointerup', (e)=>{ if(!dragging) return; dragging=false; track.style.transition='transform .32s ease'; if(Math.abs(deltaX) > track.clientWidth * 0.18){ if(deltaX<0) idx = Math.min(slides.length-1, idx+1); else idx = Math.max(0, idx-1); } update(); deltaX=0; });
+      track.addEventListener('pointercancel', ()=>{ dragging=false; track.style.transition='transform .32s ease'; update(); deltaX=0; });
+
+      // keyboard
+      document.addEventListener('keydown',(e)=>{ if(e.key==='ArrowLeft'){ idx=Math.max(0,idx-1); update(); } if(e.key==='ArrowRight'){ idx=Math.min(slides.length-1,idx+1); update(); } });
+    })();
+  </script>
+    <script>
+      (function(){
+        const a = document.getElementById('imgA');
+        const b = document.getElementById('imgB');
+        if(!a || !b) return;
+        a.classList.add('active');
+        let showingA = true;
+        const swap = ()=>{
+          if(showingA){ a.classList.remove('active'); b.classList.add('active'); }
+          else { b.classList.remove('active'); a.classList.add('active'); }
+          showingA = !showingA;
+        };
+        let timer = setInterval(swap, 2500);
+        const wrap = document.getElementById('compareImg');
+        if(wrap){
+          wrap.addEventListener('pointerenter', ()=>{ clearInterval(timer); });
+          wrap.addEventListener('pointerleave', ()=>{ timer = setInterval(swap, 2500); });
+        }
+      })();
+    </script>
 </body>
 </html>
